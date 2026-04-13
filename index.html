@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Vendor Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+}
+
+.header{
+  padding:20px;
+  font-size:28px;
+  font-weight:bold;
+  background:#1e293b;
+  text-align:center;
+}
+
+.container{
+  display:grid;
+  grid-template-columns: repeat(4,1fr);
+  gap:20px;
+  padding:20px;
+}
+
+.card{
+  background:#1e293b;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 0 15px rgba(0,0,0,0.5);
+}
+
+.big{
+  grid-column: span 4;
+}
+
+input,button{
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+}
+
+button{
+  background:#22c55e;
+  color:white;
+  cursor:pointer;
+}
+
+h3{
+  margin-top:0;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">Smart Vendor Dashboard</div>
+
+<div class="container">
+
+<div class="card">
+<h3>Apple Sales</h3>
+<p id="apple">0</p>
+</div>
+
+<div class="card">
+<h3>Banana Sales</h3>
+<p id="banana">0</p>
+</div>
+
+<div class="card">
+<h3>Orange Sales</h3>
+<p id="orange">0</p>
+</div>
+
+<div class="card">
+<h3>Total Amount</h3>
+<p id="amount">0</p>
+<input id="amtInput" placeholder="Enter amount">
+<button onclick="saveAmount()">Save</button>
+</div>
+
+<div class="card">
+<h3>Best Selling Item</h3>
+<p id="best">-</p>
+</div>
+
+<div class="card">
+<h3>Restock Tomorrow</h3>
+<p id="restock">-</p>
+</div>
+
+<div class="card big">
+<h3>Sales Analysis</h3>
+<canvas id="chart"></canvas>
+</div>
+
+</div>
+
+<script>
+
+const BASE_URL = "https://your-app-name.onrender.com"
+
+async function load(){
+  try{
+    const res = await fetch(BASE_URL + "/dashboard")
+    const data = await res.json()
+
+    if(!data.apple) return
+
+    document.getElementById("apple").innerText = data.apple
+    document.getElementById("banana").innerText = data.banana
+    document.getElementById("orange").innerText = data.orange
+    document.getElementById("amount").innerText = data.amount
+    document.getElementById("best").innerText = data.best
+    document.getElementById("restock").innerText = data.restock
+
+    new Chart(document.getElementById("chart"), {
+      type: 'line',
+      data: {
+        labels: ["Apple","Banana","Orange"],
+        datasets: [{
+          label: "Sales",
+          data: [data.apple, data.banana, data.orange]
+        }]
+      }
+    })
+
+  }catch(e){
+    console.log("Error loading data")
+  }
+}
+
+async function saveAmount(){
+  let amt = document.getElementById("amtInput").value
+
+  await fetch(BASE_URL + "/amount", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({amount:amt})
+  })
+
+  load()
+}
+
+load()
+
+</script>
+
+</body>
+</html>

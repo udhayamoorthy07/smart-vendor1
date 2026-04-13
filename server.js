@@ -1,3 +1,10 @@
+const express = require('express')
+const cors = require('cors')
+
+const app = express()
+app.use(cors())
+app.use(express.json())
+
 let currentShelf = 1
 
 let shelfMap = {
@@ -12,20 +19,26 @@ let counts = {
   orange: 0
 }
 
+let totalAmount = 0
+
+app.get('/', (req, res) => {
+  res.send("Smart Vendor Server Running")
+})
+
 app.post('/setShelf', (req, res) => {
   currentShelf = req.body.shelf
-  res.send("shelf set")
+  res.send("Shelf set")
 })
 
 app.post('/detect', (req, res) => {
-
   const fruit = shelfMap[currentShelf]
+  if (fruit) counts[fruit]++
+  res.send("Detected")
+})
 
-  if(fruit){
-    counts[fruit]++
-  }
-
-  res.send("count updated")
+app.post('/amount', (req, res) => {
+  totalAmount = req.body.amount
+  res.send("Amount saved")
 })
 
 app.get('/dashboard', (req, res) => {
@@ -47,4 +60,9 @@ app.get('/dashboard', (req, res) => {
     restock: worst.name,
     amount: totalAmount
   })
+})
+
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log("Server running")
 })

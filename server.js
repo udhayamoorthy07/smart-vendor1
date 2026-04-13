@@ -1,51 +1,50 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const cors = require('cors')
+let currentShelf = 1
 
-const app = express()
-app.use(cors())
-app.use(bodyParser.json())
+let shelfMap = {
+  1: "apple",
+  2: "banana",
+  3: "orange"
+}
 
-let dataStore = []
-let totalAmount = 0
+let counts = {
+  apple: 0,
+  banana: 0,
+  orange: 0
+}
 
-app.post('/data', (req, res) => {
-  const data = req.body
-  dataStore.push({ ...data, date: new Date() })
-  res.send("ok")
+app.post('/setShelf', (req, res) => {
+  currentShelf = req.body.shelf
+  res.send("shelf set")
 })
 
-app.post('/amount', (req, res) => {
-  totalAmount = req.body.amount
-  res.send("saved")
+app.post('/detect', (req, res) => {
+
+  const fruit = shelfMap[currentShelf]
+
+  if(fruit){
+    counts[fruit]++
+  }
+
+  res.send("count updated")
 })
 
 app.get('/dashboard', (req, res) => {
-  if (dataStore.length == 0) return res.json({})
-
-  const latest = dataStore[dataStore.length-1]
 
   const items = [
-    {name:"Apple", val:latest.apple},
-    {name:"Banana", val:latest.banana},
-    {name:"Orange", val:latest.orange}
+    {name:"Apple", val:counts.apple},
+    {name:"Banana", val:counts.banana},
+    {name:"Orange", val:counts.orange}
   ]
 
   const best = items.reduce((a,b)=> a.val>b.val?a:b)
   const worst = items.reduce((a,b)=> a.val<b.val?a:b)
 
   res.json({
-    apple: latest.apple,
-    banana: latest.banana,
-    orange: latest.orange,
+    apple: counts.apple,
+    banana: counts.banana,
+    orange: counts.orange,
     best: best.name,
     restock: worst.name,
     amount: totalAmount
   })
 })
-app.get('/', (req, res) => {
-  res.send("Smart Vendor Server Running")
-})
-
-const PORT = process.env.PORT || 3000
-app.listen(PORT)

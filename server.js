@@ -5,14 +5,6 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-let currentShelf = 1
-
-let shelfMap = {
-  1: "apple",
-  2: "banana",
-  3: "orange"
-}
-
 let counts = {
   apple: 0,
   banana: 0,
@@ -25,15 +17,11 @@ app.get('/', (req, res) => {
   res.send("Smart Vendor Server Running")
 })
 
-app.post('/setShelf', (req, res) => {
-  currentShelf = req.body.shelf
-  res.send("Shelf set")
-})
-
-app.post('/detect', (req, res) => {
-  const fruit = shelfMap[currentShelf]
-  if (fruit) counts[fruit]++
-  res.send("Detected")
+app.post('/update', (req, res) => {
+  counts.apple += req.body.apple || 0
+  counts.banana += req.body.banana || 0
+  counts.orange += req.body.orange || 0
+  res.send("Updated")
 })
 
 app.post('/amount', (req, res) => {

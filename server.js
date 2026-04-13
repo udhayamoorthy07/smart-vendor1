@@ -43,6 +43,9 @@ app.get('/dashboard', (req, res) => {
     amount: totalAmount
   })
 })
+app.get('/', (req, res) => {
+  res.send("Smart Vendor Server Running")
+})
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT)
